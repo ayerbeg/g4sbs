@@ -13,6 +13,8 @@
 #include "G4UIcommandStatus.hh"
 
 
+#include "G4SBSTDISGen.hh" //(CA)
+
 //------------
 // Geometries:
 //------------
@@ -183,6 +185,7 @@ int main(int argc, char** argv)
 
   G4SBSIO *io = new G4SBSIO();
 
+  tdishandler = new  G4SBSTDISGen(); //(CA)
 
 
   //-------------------------------
@@ -191,31 +194,47 @@ int main(int argc, char** argv)
   G4cout << "RunManager construction starting...." << G4endl;
   G4RunManager * runManager = new G4RunManager;
 
+
+  G4cout << "g4sbs::main(): Messenger" << G4endl;
   G4SBSMessenger *sbsmess = new G4SBSMessenger();
   sbsmess->SetIO(io);
+  G4cout << "g4sbs::main(): Messenger (return)" << G4endl;
 
+  G4cout << "g4sbs::main(): PhysicsList" << G4endl;
   G4VModularPhysicsList *physicslist = new G4SBSPhysicsList; 
   runManager->SetUserInitialization(physicslist);
-
   sbsmess->SetPhysList( (G4SBSPhysicsList*) physicslist );
+  G4cout << "g4sbs::main(): PhysicsList (return)" << G4endl;
+
+
 
   // Detector/mass geometry and parallel geometry(ies):
+
+  G4cout << "g4sbs::main(): Detector Construction" << G4endl;
   G4SBSDetectorConstruction* detector = new G4SBSDetectorConstruction();
+  G4cout << "g4sbs::main(): Detector Construction (return)" << G4endl;
+
   sbsmess->SetDetCon((G4SBSDetectorConstruction *) detector);
   // This lets us output graphical field maps
   io->SetGlobalField( ((G4SBSDetectorConstruction *) detector)->GetGlobalField() );
 
+
+  G4cout << "g4sbs::main(): Initialization Detector" << G4endl;
   runManager->SetUserInitialization(detector);
-  
+  G4cout << "g4sbs::main(): Initialization Detector (return)" << G4endl;
   
 
   //-------------------------------
   // UserAction classes
   //-------------------------------
+  G4cout << "g4sbs::main(): Initialization RunAction" << G4endl;
   G4UserRunAction* run_action = new G4SBSRunAction;
   ((G4SBSRunAction *) run_action)->SetIO(io);
   runManager->SetUserAction(run_action);
+  G4cout << "g4sbs::main(): Initialization RunAction (return)" << G4endl;
+
   //
+  G4cout << "g4sbs::main(): Initialization PrimaryGeneratorAction" << G4endl;
   G4VUserPrimaryGeneratorAction* gen_action = new G4SBSPrimaryGeneratorAction;
   ((G4SBSPrimaryGeneratorAction *) gen_action)->SetIO(io);
   sbsmess->SetEvGen(((G4SBSPrimaryGeneratorAction *) gen_action)->GetEvGen());
@@ -224,15 +243,24 @@ int main(int argc, char** argv)
   ( (G4SBSPrimaryGeneratorAction*) gen_action )->SetRunAction( (G4SBSRunAction*) run_action );
   
   runManager->SetUserAction(gen_action);
+  G4cout << "g4sbs::main(): Initialization PrimaryGeneratorAction (return)" << G4endl;
+
+
   //
+  G4cout << "g4sbs::main(): Initialization EventAction" << G4endl;
   G4UserEventAction* event_action = new G4SBSEventAction;
   ((G4SBSEventAction *) event_action)->SetIO(io);
   ((G4SBSEventAction *) event_action)->SetEvGen(((G4SBSPrimaryGeneratorAction *) gen_action)->GetEvGen());
   runManager->SetUserAction(event_action);
   sbsmess->SetEvAct((G4SBSEventAction *) event_action);
+  G4cout << "g4sbs::main(): Initialization EventAction (return)" << G4endl;
+
   //
+  G4cout << "g4sbs::main(): Initialization SteppingAction" << G4endl;
   G4UserSteppingAction* stepping_action = new G4SBSSteppingAction;
   runManager->SetUserAction(stepping_action);
+  G4cout << "g4sbs::main(): Initialization SteppingAction (return)" << G4endl;
+
 
   G4UImanager * UImanager = G4UImanager::GetUIpointer();
 
@@ -250,8 +278,11 @@ int main(int argc, char** argv)
   }
 
   // Initialize Run manager
+  G4cout << "g4sbs::main(): Initialization RunManager" << G4endl;
   runManager->Initialize();
- 
+  G4cout << "g4sbs::main(): Initialization RunManager (return)" << G4endl; 
+
+
   //----------------
   // Visualization:
   //----------------
@@ -280,7 +311,9 @@ int main(int argc, char** argv)
     //--------------------------
 
 #ifdef G4UI_USE
-    G4UIExecutive * ui = new G4UIExecutive(argc,argv);
+
+    G4UIExecutive * ui = new G4UIExecutive(argc, argv,"tcsh");
+    //    G4UIExecutive * ui = new G4UIExecutive(argc,argv);
     UImanager->SetSession( ui->GetSession() ); 
 #endif
 
@@ -313,6 +346,8 @@ int main(int argc, char** argv)
 //  delete visManager;
 #endif
 //  delete runManager;
+
+  delete tdishandler;
 
   return 0;
 }

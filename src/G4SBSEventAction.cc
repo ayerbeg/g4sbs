@@ -1401,7 +1401,7 @@ void G4SBSEventAction::FillmTPCData( const G4Event *evt, G4SBSmTPCHitsCollection
     G4double steptime = (*hits)[hit]->GetTime(); //global, since start of event:
     
     if( pid != 0 && Edep > 0.0 ){ //exclude optical photons and other non-physical particles
-    // if( Edep > 0.0 ){ //include optical photons and other non-physical particlesas these are above photo-ionization energies
+      // if( Edep > 0.0 ){ //include optical photons and other non-physical particlesas these are above photo-ionization energies
       //Global hit information:
       if( newcell.second ){ //first hit in a new cell:
 	nsteps_cell[cell] = 1;
@@ -1908,3 +1908,5 @@ void G4SBSEventAction::FillTrackData( G4SBSGEMoutput gemdata, G4SBSTrackerOutput
     }
   }
 }
+
+

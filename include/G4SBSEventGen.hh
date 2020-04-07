@@ -1,6 +1,10 @@
 #ifndef G4SBSEVENTGEN_HH
 #define G4SBSEVENTGEN_HH
 
+#include "TFile.h"
+#include "TTree.h"
+#include "TChain.h"
+
 #include "globals.hh"
 #include "sbstypes.hh"
 #include "G4ThreeVector.hh"
@@ -10,15 +14,17 @@
 #include "G4SBSIO.hh"
 #include "DSS2007FF.hh"
 #include "G4SBSPythiaOutput.hh"
-#include "TFile.h"
-#include "TTree.h"
-#include "TChain.h"
+
 #include "Pythia6_tree.h"
 // TDIS Acqu MC
 #include "G4SBSAcquMCOutput.hh"
 #include "AcquMCTree.h"
 
 #define MAXMOMPT 1000 // N points for targets momentum distribution interpolations
+
+#include "G4SBSTDISGen.hh"
+class G4SBSTDISGen;
+
 
 class G4SBSEventGen {
 public:
@@ -139,7 +145,11 @@ public:
   //TDIS AcquMC
   void InitializeAcquMC_Tree();
 
+
 private:
+  
+  G4LorentzVector tElectron_f; //scattered 4-vector electron
+  G4LorentzVector tNucleon_f; //final 4-vector nucleon
 
   void InitializeRejectionSampling(); //Make private so it can only be called by G4SBSEventGen::Initialize()
 

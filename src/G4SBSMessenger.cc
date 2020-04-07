@@ -93,7 +93,7 @@ G4SBSMessenger::G4SBSMessenger(){
   kineCmd = new G4UIcmdWithAString("/g4sbs/kine",this);
   // kineCmd->SetGuidance("Kinematics from elastic, inelastic, flat, dis, beam, sidis, wiser, gun, pythia6");
   // TDIS
-  kineCmd->SetGuidance("Kinematics from elastic, inelastic, flat, dis, beam, sidis, wiser, gun, pythia6, tdiskin, AcquMC");
+  kineCmd->SetGuidance("Kinematics from elastic, inelastic, flat, dis, beam, sidis, wiser, gun, pythia6, tdiskin, AcquMC. TDIS generators are selected from here, but are handled in a different class.");
   kineCmd->SetParameterName("kinetype", false);
 
   // TDIS
@@ -650,30 +650,43 @@ void G4SBSMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
     }
     
     fevgen->SetNevents(nevt);
+
+
+
+    // Here is the call to initilization of G4SBSEventGen (CA)
     fevgen->Initialize();
-    
+
+
     // if( fevgen->GetRejectionSamplingFlag() && !fevgen->GetRejectionSamplingInitialized() ){
     //   fevgen->InitializeRejectionSampling();
     // }
 
+
     Kine_t kinetype = fevgen->GetKine(); 
-    if( kinetype == kDIS || kinetype == kWiser){ //Processes with xsec in units of area/energy/solid angle; i.e., nb/GeV/sr
-      G4SBSRun::GetRun()->GetData()->SetGenVol( fevgen->GetGenVol()/GeV );
-      //if( fevgen->GetRejectionSamplingFlag() ){
-      G4SBSRun::GetRun()->GetData()->SetMaxWeight( fevgen->GetMaxWeight()/cm2 * GeV );
+    if( kinetype == kDIS || kinetype == kWiser)
+      { //Processes with xsec in units of area/energy/solid angle; i.e., nb/GeV/sr
+	G4SBSRun::GetRun()->GetData()->SetGenVol( fevgen->GetGenVol()/GeV );
+	//if( fevgen->GetRejectionSamplingFlag() ){
+	G4SBSRun::GetRun()->GetData()->SetMaxWeight( fevgen->GetMaxWeight()/cm2 * GeV );
 	//}
-    } else if ( kinetype == kSIDIS ){ //Processes with xsec differential in area/energy^2/solid angle^2:
-      G4SBSRun::GetRun()->GetData()->SetGenVol( fevgen->GetGenVol()/(GeV*GeV) );
-      // if( fevgen->GetRejectionSamplingFlag() ){
-      G4SBSRun::GetRun()->GetData()->SetMaxWeight( fevgen->GetMaxWeight()/cm2 * pow(GeV,2) );
-      //}
-    } else { //Processes with xsec differential in solid angle only:
-      // TDIS, think it is in solid angle only so in here is ok, but must check
-      G4SBSRun::GetRun()->GetData()->SetGenVol( fevgen->GetGenVol() );
-      //if( fevgen->GetRejectionSamplingFlag() ){
-      G4SBSRun::GetRun()->GetData()->SetMaxWeight( fevgen->GetMaxWeight()/cm2 );
-      //}
-    }
+      } 
+    else if ( kinetype == kSIDIS )
+      { //Processes with xsec differential in area/energy^2/solid angle^2:
+	G4SBSRun::GetRun()->GetData()->SetGenVol( fevgen->GetGenVol()/(GeV*GeV) );
+	// if( fevgen->GetRejectionSamplingFlag() ){
+	G4SBSRun::GetRun()->GetData()->SetMaxWeight( fevgen->GetMaxWeight()/cm2 * pow(GeV,2) );
+	//}
+      } 
+    else 
+      { //Processes with xsec differential in solid angle only:
+	// TDIS, think it is in solid angle only so in here is ok, but must check
+	//	G4cout<<"void G4SBSMessenger::SetNewValue "<< kinetype<<G4endl;
+	G4SBSRun::GetRun()->GetData()->SetGenVol( fevgen->GetGenVol() );
+	//if( fevgen->GetRejectionSamplingFlag() ){
+	G4SBSRun::GetRun()->GetData()->SetMaxWeight( fevgen->GetMaxWeight()/cm2 );
+	//}
+      }
+    
     G4SBSRun::GetRun()->GetData()->SetLuminosity( fevgen->GetLumi()*cm2*s );
     //G4SBSRun::GetRun()->GetData()->SetMaxWeight( fevgen->GetMaxWeight() );
     
@@ -818,13 +831,34 @@ void G4SBSMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
       //fevgen->SetMaxWeight( cm2 );
       validcmd = true;
     }
+
+
+  // TDIS Generators (CA) (begin)
     // TDIS addition
-    if (newValue.compareTo("tdiskin") == 0 ){
+    if (newValue.compareTo("tdisgen") == 0 ){ //the original generator 
       fevgen->SetKine(kTDISKin);
-      // fevgen->SetRejectionSamplingFlag(false);
-      //fevgen->SetMaxWeight( cm2 );
       validcmd = true;
     }
+    if (newValue.compareTo("tdisela") == 0 ){
+      fevgen->SetKine(tElastic);
+      validcmd = true;
+    }
+    if (newValue.compareTo("tdisqua") == 0 ){
+      fevgen->SetKine(tQuasiElastic);
+      validcmd = true;
+    }
+    if (newValue.compareTo("tdisine") == 0 ){
+      fevgen->SetKine(tInelastic);
+      validcmd = true;
+    }
+    if (newValue.compareTo("tdiskin") == 0 ){ //nothing yet
+      fevgen->SetKine(kTDISKin);
+      validcmd = true;
+    }
+    //TDIS Generators (CA) (end)
+
+
+
     // TDIS AcquMC
     if( newValue.compareTo("AcquMC") == 0 ){
       fevgen->SetKine( kAcquMC );

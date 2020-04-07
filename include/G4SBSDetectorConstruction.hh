@@ -1,6 +1,6 @@
 #ifndef G4SBSDetectorConstruction_h
 #define G4SBSDetectorConstruction_h 1
-
+#include "G4SystemOfUnits.hh"
 #include "G4LogicalVolume.hh"
 #include "G4VUserDetectorConstruction.hh"
 //#include "G4SBSIO.hh"
@@ -10,7 +10,7 @@
 #include "G4Material.hh"
 #include "G4OpticalSurface.hh"
 #include "G4SDManager.hh"
-#include "G4SystemOfUnits.hh"
+
 #include <map>
 #include <set>
 

@@ -1,6 +1,8 @@
 #ifndef G4SBSIO_H
 #define G4SBSIO_H
 
+
+#include "TGraph.h"
 #include "TROOT.h"
 #include "TObject.h"
 #include "THashTable.h"
@@ -49,11 +51,27 @@ typedef struct {
   Double_t pmperp, pmpar, pmparsm;
   Double_t z, phperp, phih, MX;
   Double_t Sx, Sy, Sz; //polarization: only meaningful for gun generator!
-  Double_t xpi, tpi, xa,pt, nu, ya, y, f2p, f2pi, ypi; // TDIS
+  Double_t xpi, tpi, xa, pt, nu, ya, y, f2p, f2pi, ypi; // TDIS
   Int_t nucl, fnucl;
   Int_t hadr;
   Int_t earmaccept, harmaccept;
 } ev_t;
+
+
+//MAYBE USEFUL LATER
+/*
+typedef struct {
+  Double_t count, rate, solang, sigma, W2, xbj, Q2, th, ph, sigmaDIS, sigmaTDIS; // TDIS
+  Double_t p1p, p2p, pip; // TDIS
+  Double_t p1px, p1py, p1pz; // TDIS
+  Double_t p2px, p2py, p2pz; // TDIS
+  Double_t pipx, pipy, pipz; // TDIS
+  Double_t p1th, p1ph, p2th, p2ph, pith, piph; // TDIS
+  Double_t xpi, tpi, xa, pt, nu, ya, y, f2p, f2pi, ypi; // TDIS
+  Int_t nucl, fnucl;
+  Int_t earmaccept, harmaccept;
+}tdis_ev_t;
+*/
 
 typedef struct {
   Double_t x, y, xp, yp;
@@ -171,6 +189,11 @@ public:
   TClonesArray *Esum_histograms;
   TClonesArray *PulseShape_histograms;
 
+
+  TGraph *gD;
+  void  TDISGraph(G4int npoints, vector<double>& momentum, vector<double>& XS);
+
+
   void UpdateGenDataFromDetCon(); //Check and correct any mismatch between constant parameters defined during geometry construction and default values
   
 private:
@@ -180,6 +203,10 @@ private:
   G4SBSDetectorConstruction *fdetcon;
  
   ev_t evdata;
+ 
+  //TDIS
+  //  tdis_ev_t tdisevdata;
+
   gen_t gendata;
   //tr_t trdata;
   // cal_t caldata;

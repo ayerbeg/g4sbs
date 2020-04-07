@@ -1,3 +1,9 @@
+#include "TSpline.h"
+
+// To supress errors with TString, system of units should be included last
+#include "G4SystemOfUnits.hh"
+
+
 #include "G4SBSDetectorConstruction.hh"
 
 #include "G4PhysicalConstants.hh"
@@ -54,15 +60,14 @@
 #include "G4SBSCalSD.hh"
 #include "G4SBSGEMSD.hh"
 
-#include "TSpline.h"
+
 
 #include <vector>
 #include <map>
 #include <algorithm>
 //#include <pair>
 
-// To supress errors with TString, system of units should be included last
-#include "G4SystemOfUnits.hh"
+
 
 using namespace std;
 
@@ -318,7 +323,11 @@ void G4SBSDetectorConstruction::ConstructMaterials(){
 
   G4Material *G4_polystyrene = man->FindOrBuildMaterial( "G4_POLYSTYRENE" );
   fMaterialsMap["POLYSTYRENE"] = G4_polystyrene;
-    
+
+  // G4cout<<"Here 1"<<G4endl;
+  // G4cout<<"Here 2"<<G4endl;
+  // G4cout<<"Here 3"<<G4endl;    
+
   double bigden = 1e9*g/cm3;
 
   // Cell Glass - GE180 Aluminosilicate Glass
@@ -546,11 +555,14 @@ void G4SBSDetectorConstruction::ConstructMaterials(){
   CH4->AddElement(elC, 1);
   CH4->AddElement(elH, 4);
 
-  G4cout << "H2 density (g/cm3) = " << refH2->GetDensity()/(g/cm3) 
-	 << ", D2 density (g/cm3) = " << refD2->GetDensity()/(g/cm3) 
-	 << ", 4He density (g/cm3) = " << ref4He->GetDensity()/(g/cm3) 
-	 << ", CH4 density (g/cm3) = " << CH4->GetDensity()/(g/cm3) 
-	 << G4endl;
+  // This line appears when the RunManager is initialized
+  // i.e. all the modules are activated (I need to reduce messages)
+
+  // G4cout << "H2 density (g/cm3) = " << refH2->GetDensity()/(g/cm3) 
+  // 	 << ", D2 density (g/cm3) = " << refD2->GetDensity()/(g/cm3) 
+  // 	 << ", 4He density (g/cm3) = " << ref4He->GetDensity()/(g/cm3) 
+  // 	 << ", CH4 density (g/cm3) = " << CH4->GetDensity()/(g/cm3) 
+  // 	 << G4endl;
   
   fMaterialsMap["CH4"] = CH4;
 
@@ -903,7 +915,7 @@ void G4SBSDetectorConstruction::ConstructMaterials(){
   G4double Mmol_SF6 = 146.05*gram;
   G4double density_SF6 = Mmol_SF6 * atmosphere / (Avogadro * k_Boltzmann * 293.0*kelvin );
 
-  G4cout << "Defining Sulfur Hexafluoride, density = " << density_SF6/g*cm3 << " g/cm^3" << G4endl;
+  //  G4cout << "Defining Sulfur Hexafluoride, density = " << density_SF6/g*cm3 << " g/cm^3" << G4endl;
 
   G4Material *mat_SF6 = new G4Material( "SF6_gas", density_SF6, nel=2 );
 
@@ -2392,7 +2404,7 @@ G4OpticalSurface *G4SBSDetectorConstruction::GetOpticalSurface( G4String name ){
 //G4VPhysicalVolume* G4SBSDetectorConstruction::ConstructAll()
 G4VPhysicalVolume* G4SBSDetectorConstruction::ConstructAll()
 {
-  G4cout << "\nG4SBSDetectorConstruction....\n" << G4endl;
+  G4cout << "\nG4VPhysicalVolume* G4SBSDetectorConstruction::ConstructAll(): G4SBSDetectorConstruction....\n" << G4endl;
 
   if( fMaterialsMap.empty() ) ConstructMaterials();
 

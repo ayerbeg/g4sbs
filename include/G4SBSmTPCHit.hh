@@ -1,10 +1,11 @@
 #ifndef G4SBSmTPCHit_h 
 #define G4SBSmTPCHit_h 1
 
+#include "G4ThreeVector.hh"
 #include "G4VHit.hh"
 #include "G4THitsCollection.hh"
 #include "G4Allocator.hh"
-#include "G4ThreeVector.hh"
+
 #include "G4LogicalVolume.hh"
 
 class G4SBSmTPCHit : public G4VHit

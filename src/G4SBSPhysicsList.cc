@@ -25,6 +25,7 @@
 
 G4SBSPhysicsList::G4SBSPhysicsList() : G4VModularPhysicsList() {
   
+  G4cout<<"G4SBSPhysicsList::G4SBSPhysicsList() Entering"<<G4endl;
   G4LossTableManager::Instance();
 
   G4int verb = 0;

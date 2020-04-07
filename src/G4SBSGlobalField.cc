@@ -2,12 +2,19 @@
 #include "TCanvas.h"
 #include "TH2F.h"
 #include "TStyle.h"
-#include "G4SBSGlobalField.hh"
+
+#include "G4SystemOfUnits.hh"
+
+
 #include "G4SBSMagneticField.hh"
+#include "G4SBSGlobalField.hh"
+
+
+
 #include "G4FieldManager.hh"
 #include "G4TransportationManager.hh"
 
-#include "G4SystemOfUnits.hh"
+
 #include "G4PhysicalConstants.hh"
 
 #include "sbstypes.hh"

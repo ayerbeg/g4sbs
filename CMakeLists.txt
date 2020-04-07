@@ -9,6 +9,12 @@ project(G4SBS)
 #
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable")
+
+#----------------------------------------------------------------------------
+# test to link fortran function
+
+enable_language(Fortran)
 
 #----------------------------------------------------------------------------
 # Setup Geant4 include directories and compile definitions
@@ -37,7 +43,7 @@ ROOT_GENERATE_DICTIONARY(
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
 #
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/G4SBS*.cc ${PROJECT_SOURCE_DIR}/src/dss2007/*.cc ${PROJECT_SOURCE_DIR}/include/Pythia6_tree.C ${PROJECT_SOURCE_DIR}/include/AcquMCTree.C ${PROJECT_SOURCE_DIR}/RTPC_2v4/src/RTPC.cc ${PROJECT_SOURCE_DIR}/RTPC_2v4/src/Array*.cc ${PROJECT_SOURCE_DIR}/RTPC_2v4/src/RootIO.cc ${PROJECT_SOURCE_DIR}/RTPC_2v4/src/*Field*.cc ${PROJECT_SOURCE_DIR}/RTPC_2v4/src/BeamLine.cc )
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/G4SBS*.cc ${PROJECT_SOURCE_DIR}/src/dss2007/*.cc ${PROJECT_SOURCE_DIR}/include/Pythia6_tree.C ${PROJECT_SOURCE_DIR}/include/AcquMCTree.C ${PROJECT_SOURCE_DIR}/RTPC_2v4/src/RTPC.cc ${PROJECT_SOURCE_DIR}/RTPC_2v4/src/Array*.cc ${PROJECT_SOURCE_DIR}/RTPC_2v4/src/RootIO.cc ${PROJECT_SOURCE_DIR}/RTPC_2v4/src/*Field*.cc ${PROJECT_SOURCE_DIR}/RTPC_2v4/src/BeamLine.cc ${PROJECT_SOURCE_DIR}/src/epc_func.f)
 file(GLOB headers ${CMAKE_CURRENT_BINARY_DIR}/include/gitinfo.hh ${PROJECT_SOURCE_DIR}/include/*.hh ${PROJECT_SOURCE_DIR}/include/wiser_pion.h ${PROJECT_SOURCE_DIR}/src/cteq/*.h ${PROJECT_SOURCE_DIR}/src/dss2007/*.hh ${PROJECT_SOURCE_DIR}/include/Pythia6_tree.h ${PROJECT_SOURCE_DIR}/RTPC_2v4/include/RTPC.hh ${PROJECT_SOURCE_DIR}/RTPC_2v4/include/Array*.cc ${PROJECT_SOURCE_DIR}/RTPC_2v4/include/RootIO.hh ${PROJECT_SOURCE_DIR}/RTPC_2v4/include/*Field*.hh)
 
 file(GLOB cteqsources ${PROJECT_SOURCE_DIR}/src/cteq/*.c  )

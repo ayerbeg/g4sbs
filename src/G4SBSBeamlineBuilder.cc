@@ -1,3 +1,7 @@
+
+
+#include "G4PhysicalConstants.hh"
+
 #include "G4SBSBeamlineBuilder.hh"
 
 #include "G4SBSHArmBuilder.hh"
@@ -18,9 +22,8 @@
 #include "G4Trd.hh"
 #include "G4Trap.hh"
 #include "G4RotationMatrix.hh"
-
 #include "G4SystemOfUnits.hh"
-#include "G4PhysicalConstants.hh"
+
 #include "G4SBSCalSD.hh"
 
 

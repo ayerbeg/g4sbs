@@ -1,5 +1,6 @@
 #include "TObjString.h"
 #include "TString.h"
+#include "TGraph.h"
 
 #include <TFile.h>
 #include <TTree.h>
@@ -107,10 +108,14 @@ void G4SBSIO::InitializeTree(){
     PulseShape_histograms = new TClonesArray("TH1F",10);
 
     fNhistograms = 0;
-    
+   
     fTree = new TTree("T", "Geant4 SBS Simulation");
+
     // Added variables for TDIS
-    fTree->Branch("ev", &evdata, "count/D:rate/D:solang/D:sigma/D:W2/D:xbj/D:Q2/D:th/D:ph/D:sigmaDIS/D:sigmaTDIS/D:Aperp/D:Apar/D:Pt/D:Pl/D:vx/D:vy/D:vz/D:ep/D:np/D:p1p/D:p2p/D:pip/D:epx/D:epy/D:epz/D:npx/D:npy/D:npz/D:p1px/D:p1py/D:p1pz/D:p2px/D:p2py/D:p2pz/D:pipx/D:pipy/D:pipz/D:nth/D:nph/D:p1th/D:p1ph/D:p2th/D:p2ph/D:pith/D:piph/D:pmperp/D:pmpar/D:pmparsm/D:z/D:phperp/D:phih/D:MX2/D:xpi/D:tpi/D:xa/D:pt/D:nu/D:ya/D:y/D:f2p/D:f2pi/D:ypi/D:Sx/D:Sy/D:Sz/D:nucl/I:fnucl/I:hadr/I:earmaccept/I:harmaccept/I");
+    fTree->Branch("ev", &evdata, "count/D:rate/D:solang/D:sigma/D:W2/D:xbj/D:Q2/D:th/D:ph/D:sigmaDIS/D:sigmaTDIS/D:Aperp/D:Apar/D:Pt/D:Pl/D:vx/D:vy/D:vz/D:ep/D:np/D:p1p/D:p2p/D:pip/D:epx/D:epy/D:epz/D:npx/D:npy/D:npz/D:p1px/D:p1py/D:p1pz/D:p2px/D:p2py/D:p2pz/D:pipx/D:pipy/D:pipz/D:nth/D:nph/D:p1th/D:p1ph/D:p2th/D:p2ph/D:pith/D:piph/D:pmperp/D:pmpar/D:pmparsm/D:z/D:phperp/D:phih/D:MX/D:Sx/D:Sy/D:Sz/D:xpi/D:tpi/D:xa/D:pt/D:nu/D:ya/D:y/D:f2p/D:f2pi/D:ypi/D:nucl/I:fnucl/I:hadr/I:earmaccept/I:harmaccept/I");
+
+    //    fTree->Branch("tdisev", &tdisevdata, "count/D:rate/D:solang/D;sigma/D:W2/D:xbj/D:Q2/D:th/D:ph/D:sigmaDIS/D:sigmaTDIS/D:p1p/D:p2p/D:pip/D:p1px/D:p1py/D:p1pz/D:p2px/D:p2py/D:p2pz/D:pipx/D:pipy/D:pipz/D:p1th/D:p1ph/D:p2th/D:p2ph/D:pith/D:piph/D:xpi/D:tpi/D:xa/D:pt/D:nu/D:ya/D:y/D:f2p/D:f2pi/D:ypi/D:pmpar/D:pmparsm/D:pmperp/D:nucl/I:fnucl/I:earmaccept/I:harmaccept/I");
+
     //fTree->Branch("tr", &trdata, "x/D:y/D:xp/D:yp/D:tx/D:ty/D:txp/D:typ/D:hcal/I:bb/I:gemtr/I:hcx/D:hcy/D:bcx/D:bcy/D:hct/D:hctex/D:hclx/D:hcly/D:hclz/D:hcdang/D");
     //fTree->Branch("gen", &gendata, "thbb/D:thsbs/D:dbb/D:dsbs/D:dhcal/D:voffhcal/D:drich/D:dsbstrkr/D:Ebeam/D");
 
@@ -161,122 +166,7 @@ void G4SBSIO::InitializeTree(){
       BranchAcquMC();
     }
 
-    // // Tedious, but we want dynamically scaled
-    // fTree->Branch("ht.ndata", &hitdata.ndata, "ht.ndata/I");
-    // fTree->Branch("ht.gid", &hitdata.gid, "ht.gid[ht.ndata]/I");
-    // fTree->Branch("ht.trkrid", &hitdata.trkrid, "ht.trkrid[ht.ndata]/I");
-    // fTree->Branch("ht.x", &hitdata.x, "ht.x[ht.ndata]/D");
-    // fTree->Branch("ht.y", &hitdata.y, "ht.y[ht.ndata]/D");
-    // fTree->Branch("ht.z", &hitdata.z, "ht.z[ht.ndata]/D");
-    // fTree->Branch("ht.t", &hitdata.t, "ht.t[ht.ndata]/D");
-    // fTree->Branch("ht.vx", &hitdata.vx, "ht.vx[ht.ndata]/D");
-    // fTree->Branch("ht.vy", &hitdata.vy, "ht.vy[ht.ndata]/D");
-    // fTree->Branch("ht.vz", &hitdata.vz, "ht.vz[ht.ndata]/D");
-    // fTree->Branch("ht.dx", &hitdata.dx, "ht.dx[ht.ndata]/D");
-    // fTree->Branch("ht.dy", &hitdata.dy, "ht.dy[ht.ndata]/D");
-    // fTree->Branch("ht.p", &hitdata.p, "ht.p[ht.ndata]/D");
-
-    // fTree->Branch("ht.trid", &hitdata.trid, "ht.trid[ht.ndata]/I");
-    // fTree->Branch("ht.pid", &hitdata.pid, "ht.pid[ht.ndata]/I");
-    // fTree->Branch("ht.mid", &hitdata.mid, "ht.mid[ht.ndata]/I");
-    // fTree->Branch("ht.edep", &hitdata.edep, "ht.edep[ht.ndata]/D");
-
-    // fTree->Branch("ht.tx", &hitdata.tx, "ht.tx[ht.ndata]/D");
-    // fTree->Branch("ht.ty", &hitdata.ty, "ht.ty[ht.ndata]/D");
-    // fTree->Branch("ht.txp", &hitdata.txp, "ht.txp[ht.ndata]/D");
-    // fTree->Branch("ht.typ", &hitdata.typ, "ht.typ[ht.ndata]/D");
-
-    // fTree->Branch("hc.ndata", &caldata.hcndata, "hc.ndata/I");
-    // fTree->Branch("hc.x", &caldata.hcx, "hc.x[hc.ndata]/D");
-    // fTree->Branch("hc.y", &caldata.hcy, "hc.y[hc.ndata]/D");
-    // fTree->Branch("hc.z", &caldata.hcz, "hc.z[hc.ndata]/D");
-    // fTree->Branch("hc.e", &caldata.hce, "hc.e[hc.ndata]/D");
-    // fTree->Branch("hc.t", &caldata.hct, "hc.t[hc.ndata]/D");
-    // fTree->Branch("hc.vx", &caldata.hcvx, "hc.vx[hc.ndata]/D");
-    // fTree->Branch("hc.vy", &caldata.hcvy, "hc.vy[hc.ndata]/D");
-    // fTree->Branch("hc.vz", &caldata.hcvz, "hc.vz[hc.ndata]/D");
-    // fTree->Branch("hc.trid", &caldata.hctrid, "hc.trid[hc.ndata]/I");
-    // fTree->Branch("hc.mid", &caldata.hcmid, "hc.mid[hc.ndata]/I");
-    // fTree->Branch("hc.pid", &caldata.hcpid, "hc.pid[hc.ndata]/I");
-
-    // fTree->Branch("bc.ndata", &caldata.bcndata, "bc.ndata/I");
-    // fTree->Branch("bc.x", &caldata.bcx, "bc.x[bc.ndata]/D");
-    // fTree->Branch("bc.y", &caldata.bcy, "bc.y[bc.ndata]/D");
-    // fTree->Branch("bc.z", &caldata.bcz, "bc.z[bc.ndata]/D");
-    // fTree->Branch("bc.e", &caldata.bce, "bc.e[bc.ndata]/D");
-    // fTree->Branch("bc.t", &caldata.bct, "bc.t[bc.ndata]/D");
-    // fTree->Branch("bc.vx", &caldata.bcvx, "bc.vx[bc.ndata]/D");
-    // fTree->Branch("bc.vy", &caldata.bcvy, "bc.vy[bc.ndata]/D");
-    // fTree->Branch("bc.vz", &caldata.bcvz, "bc.vz[bc.ndata]/D");
-    // fTree->Branch("bc.trid", &caldata.bctrid, "bc.trid[bc.ndata]/I");
-    // fTree->Branch("bc.mid", &caldata.bcmid, "bc.mid[bc.ndata]/I");
-    // fTree->Branch("bc.pid", &caldata.bcpid, "bc.pid[bc.ndata]/I");
-
-    // //Declare new "vectorized" Tracking output branches:
-    // fTree->Branch("ntracks", &(trackdata.ntracks), "ntracks/I");
-    // fTree->Branch("trackerid", &(trackdata.TrackerID) );
-    // fTree->Branch("trackid", &(trackdata.TrackTID) );
-    // fTree->Branch("trackpid", &(trackdata.TrackPID) );
-    // fTree->Branch("tracknhits", &(trackdata.NumHits) );
-    // fTree->Branch("tracknplanes", &(trackdata.NumPlanes) );
-    // fTree->Branch("trackndf", &(trackdata.NDF) );
-    // fTree->Branch("trackchi2", &(trackdata.Chi2fit) );
-    // fTree->Branch("trackchi2true", &(trackdata.Chi2true) );
-    // fTree->Branch("trackx", &(trackdata.TrackX) );
-    // fTree->Branch("tracky", &(trackdata.TrackY) );
-    // fTree->Branch("trackxp", &(trackdata.TrackXp) );
-    // fTree->Branch("trackyp", &(trackdata.TrackYp) );
-    // fTree->Branch("trackt", &(trackdata.TrackT) );
-    // fTree->Branch("trackp", &(trackdata.TrackP) );
-    // fTree->Branch("trackxfit", &(trackdata.TrackXfit) );
-    // fTree->Branch("trackyfit", &(trackdata.TrackYfit) );
-    // fTree->Branch("trackxpfit", &(trackdata.TrackXpfit) );
-    // fTree->Branch("trackypfit", &(trackdata.TrackYpfit) );
-
-    // //Declare RICH-related branches of the tree:
-    // //richdata are stored as STL vectors (basically dynamically sized arrays). Newer ROOT versions know how to handle this, older may not.
-    // fTree->Branch("RICH_nhits", &(richdata.nhits_RICH), "nhits_RICH/I");
-    // fTree->Branch("RICH_pmt", &(richdata.PMTnumber) );
-    // fTree->Branch("RICH_row", &(richdata.row) );
-    // fTree->Branch("RICH_col", &(richdata.col) );
-    // fTree->Branch("RICH_nphe", &(richdata.NumPhotoelectrons) );
-    // fTree->Branch("RICH_tavg", &(richdata.Time_avg) );
-    // fTree->Branch("RICH_trms", &(richdata.Time_rms) );
-    // fTree->Branch("RICH_mID", &(richdata.mTrackNo) );
-    // fTree->Branch("RICH_vol", &(richdata.volume_flag) );
-    // fTree->Branch("RICH_xhit", &(richdata.xhit) );
-    // fTree->Branch("RICH_yhit", &(richdata.yhit) );
-    // fTree->Branch("RICH_zhit", &(richdata.zhit) );
-    // fTree->Branch("RICH_pxhit", &(richdata.pxhit) );
-    // fTree->Branch("RICH_pyhit", &(richdata.pyhit) );
-    // fTree->Branch("RICH_pzhit", &(richdata.pzhit) );
-    // fTree->Branch("RICH_vxhit", &(richdata.pvx) );
-    // fTree->Branch("RICH_vyhit", &(richdata.pvy) );
-    // fTree->Branch("RICH_vzhit", &(richdata.pvz) );
-    // fTree->Branch("RICH_vpxhit", &(richdata.ppx) );
-    // fTree->Branch("RICH_vpyhit", &(richdata.ppy) );
-    // fTree->Branch("RICH_vpzhit", &(richdata.ppz) );
-    // //The RICH parent track data only gets filled if /tracking/storeTrajectory 1 has been issued by the user (because keeping track of this info is CPU and memory intensive).
-    // fTree->Branch("RICH_ntracks", &(richdata.ntracks_RICH), "ntracks_RICH/I");
-    // fTree->Branch("RICH_mPID", &(richdata.mPID) );
-    // fTree->Branch("RICH_mTID", &(richdata.mTID) );
-    // fTree->Branch("RICH_mMID", &(richdata.mMID) );
-    // fTree->Branch("RICH_mvx", &(richdata.mvx) );
-    // fTree->Branch("RICH_mvy", &(richdata.mvy) );
-    // fTree->Branch("RICH_mvz", &(richdata.mvz) );
-    // fTree->Branch("RICH_mpx", &(richdata.mpx) );
-    // fTree->Branch("RICH_mpy", &(richdata.mpy) );
-    // fTree->Branch("RICH_mpz", &(richdata.mpz) );
-
-    // //ECal uses the same approach as RICH
-    // fTree->Branch("ECal_nhits", &(ecaldata.nhits_ECal), "nhits_ECal/I");
-    // fTree->Branch("ECal_pmt", &(ecaldata.PMTnumber) );
-    // fTree->Branch("ECal_row", &(ecaldata.row) );
-    // fTree->Branch("ECal_col", &(ecaldata.col) );
-    // fTree->Branch("ECal_nphe", &(ecaldata.NumPhotoelectrons) );
-    // fTree->Branch("ECal_tavg", &(ecaldata.Time_avg) );
-    // fTree->Branch("ECal_trms", &(ecaldata.Time_rms) );
-    //fTree->Print();
+   
     return;
 }
 
@@ -292,10 +182,12 @@ void G4SBSIO::FillTree(){
 void G4SBSIO::WriteTree(){
     assert( fFile );
     assert( fTree );
-    if( !fFile->IsOpen() ){
+
+    if( !fFile->IsOpen() )
+      {
 	G4cerr << "ERROR: " << __FILE__ << " line " << __LINE__ << ": TFile not open" << G4endl;
 	exit(1);
-    }
+      }
 
     fFile->cd();
     fTree->Write("T", TObject::kOverwrite);
@@ -798,4 +690,15 @@ void G4SBSIO::UpdateGenDataFromDetCon(){ //Go with whatever is in fdetcon as of 
   gendata.drich = fdetcon->fHArmBuilder->fRICHdist/CLHEP::m;
   gendata.dsbstrkr = fdetcon->fHArmBuilder->fSBS_tracker_dist/CLHEP::m;
   gendata.sbstrkrpitch = fdetcon->fHArmBuilder->fSBS_tracker_pitch; //radians
+}
+
+void G4SBSIO::TDISGraph(G4int npoints, vector<double>& momentum, vector<double>& XS)
+{
+
+  // gD = new TGraph (npoints, &(momentum[0]), &(XS[0]) );
+
+  // G4cout<< "IO"<<G4endl;
+
+  // gD->Write();
+
 }

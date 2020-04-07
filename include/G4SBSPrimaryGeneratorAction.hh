@@ -10,6 +10,9 @@ class G4ParticleGun;
 class G4ParticleDefinition;
 class G4Event;
 class G4SBSEventGen;
+
+//class G4SBSTDISGen;
+
 class G4SBSIO;
 class G4SBSRunAction;
 //class G4ThreeVector;
@@ -41,6 +44,7 @@ private:
   G4String GunParticleName;
   G4ParticleDefinition *GunParticleType; //Which particle type will the gun use?
   G4SBSEventGen* sbsgen;
+
   G4SBSRunAction *RunAction;
   G4SBSIO *fIO;
  

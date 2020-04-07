@@ -5,8 +5,9 @@
 #include "sbstypes.hh"
 #include <vector>
 
-#include "G4SBSMagneticField.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4SBSMagneticField.hh"
+
 
 class TH2F;
 

@@ -1,3 +1,5 @@
+#include "G4SystemOfUnits.hh"
+#include "G4SBSHArmBuilder.hh"
 #include "G4SBSTargetBuilder.hh" 
 
 #include "G4SBSDetectorConstruction.hh"
@@ -21,7 +23,7 @@
 #include "G4SBSCalSD.hh"
 #include "G4SBSGEMSD.hh"
 
-#include "G4SBSHArmBuilder.hh"
+
 
 #include "G4SBSTPCTOSCAField2D.hh"
 #include "G4MagneticField.hh"
@@ -30,7 +32,6 @@
 #include "G4FieldManager.hh"
 #include "G4ChordFinder.hh"
 
-#include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
 G4SBSTargetBuilder::G4SBSTargetBuilder(G4SBSDetectorConstruction *dc):G4SBSComponent(dc){
@@ -675,13 +676,13 @@ void G4SBSTargetBuilder::BuildStandardScatCham(G4LogicalVolume *worldlog ){
   G4Tubs* solidExitBeamPipeSurroundCut = new G4Tubs("solidExitBeamPipeSurroundCut", 
 						    55.0*mm, 2.803*inch, 1.684*inch, 0.0, 360.0*deg);
   
-   G4SubtractionSolid* solidSCFrontClam_0_ebps =
+  G4SubtractionSolid* solidSCFrontClam_0_ebps =
     new G4SubtractionSolid("solidSCClamshell_0_ebps", solidSCFrontClam_0_ebp, 
-		     solidExitBeamPipeSurroundCut, rot_temp, 
-		     G4ThreeVector((SCFrontClamOuterRadius+1.684*inch)*sin(90.0*deg-SCBeamExitAngleOffset),
-				   (SCFrontClamOuterRadius+1.684*inch)*cos(90.0*deg-SCBeamExitAngleOffset), 
-				   0.0)
-		     );
+			   solidExitBeamPipeSurroundCut, rot_temp, 
+			   G4ThreeVector((SCFrontClamOuterRadius+1.684*inch)*sin(90.0*deg-SCBeamExitAngleOffset),
+					 (SCFrontClamOuterRadius+1.684*inch)*cos(90.0*deg-SCBeamExitAngleOffset), 
+					 0.0)
+			   );
    
   G4Tubs* solidExitBeamPipeFlange = new G4Tubs("solidExitBeamPipeFlange", 
 					       0.0, 2.985*inch, 0.3925*inch, 0.0, 360.0*deg);
@@ -829,14 +830,14 @@ void G4SBSTargetBuilder::BuildStandardScatCham(G4LogicalVolume *worldlog ){
   
   G4UnionSolid* solidScatChamber_0_wbv = 
     new G4UnionSolid("solidScatChamber_0_wbv", solidScatChamber_0, solidSCWindowVacuum,
-			   rot_temp, G4ThreeVector(0,0,SCOffset));
+		     rot_temp, G4ThreeVector(0,0,SCOffset));
   
   rot_temp = new G4RotationMatrix();
   rot_temp->rotateZ(-90.0*deg+SCWindowAngleApert*0.5+SCWindowAngleOffset);
   
   G4UnionSolid* solidScatChamber_0_wfv = 
     new G4UnionSolid("solidScatChamber_0_wfv", solidScatChamber_0_wbv, solidSCWindowVacuum,
-			   rot_temp, G4ThreeVector(0,0,SCOffset));
+		     rot_temp, G4ThreeVector(0,0,SCOffset));
   
   rot_temp = new G4RotationMatrix();
   rot_temp->rotateX(90.0*deg);
@@ -1115,9 +1116,9 @@ void G4SBSTargetBuilder::BuildGEpScatCham(G4LogicalVolume *worldlog ){
   G4LogicalVolume *TargetCell_log;
 
   if( fTargType == kLH2 ){
-    TargetCell_log = new G4LogicalVolume( TargetCell, GetMaterial("LH2"), "TargetCell_log" );
+  TargetCell_log = new G4LogicalVolume( TargetCell, GetMaterial("LH2"), "TargetCell_log" );
   } else {
-    TargetCell_log = new G4LogicalVolume( TargetCell, GetMaterial("LD2"), "TargetCell_log" );
+  TargetCell_log = new G4LogicalVolume( TargetCell, GetMaterial("LD2"), "TargetCell_log" );
   }
   
   G4Tubs *TargetWall = new G4Tubs("TargetWall", Rcell, Rcell + sthick, fTargLen/2.0, 0, twopi );
@@ -1686,9 +1687,9 @@ void G4SBSTargetBuilder::BuildC16ScatCham(G4LogicalVolume *worldlog ){
   G4LogicalVolume *TargetCell_log;
 
   if( fTargType == kLH2 ){
-    TargetCell_log = new G4LogicalVolume( TargetCell, GetMaterial("LH2"), "TargetCell_log" );
+  TargetCell_log = new G4LogicalVolume( TargetCell, GetMaterial("LH2"), "TargetCell_log" );
   } else {
-    TargetCell_log = new G4LogicalVolume( TargetCell, GetMaterial("LD2"), "TargetCell_log" );
+  TargetCell_log = new G4LogicalVolume( TargetCell, GetMaterial("LD2"), "TargetCell_log" );
   }
 
   G4Tubs *TargetWall = new G4Tubs("TargetWall", Rcell, Rcell + sthick, fTargLen/2.0, 0, twopi );
@@ -1719,26 +1720,26 @@ void G4SBSTargetBuilder::BuildC16ScatCham(G4LogicalVolume *worldlog ){
   new G4PVPlacement( targrot, G4ThreeVector(0.0, 0.0,0.0), TargetMother_log, "TargetMother_phys", scham_vacuum_log, false, 0 );
 
   if( fFlux ){ //Make a sphere to compute particle flux:
-    G4Sphere *fsph = new G4Sphere( "fsph", 1.5*fTargLen/2.0, 1.5*fTargLen/2.0+cm, 0.0*deg, 360.*deg,
-    0.*deg, 150.*deg );
-    G4LogicalVolume *fsph_log = new G4LogicalVolume( fsph, GetMaterial("Air"), "fsph_log" );
-    new G4PVPlacement( targrot, G4ThreeVector(0,0,0), fsph_log, "fsph_phys", scham_vacuum_log, false, 0 );
+  G4Sphere *fsph = new G4Sphere( "fsph", 1.5*fTargLen/2.0, 1.5*fTargLen/2.0+cm, 0.0*deg, 360.*deg,
+  0.*deg, 150.*deg );
+  G4LogicalVolume *fsph_log = new G4LogicalVolume( fsph, GetMaterial("Air"), "fsph_log" );
+  new G4PVPlacement( targrot, G4ThreeVector(0,0,0), fsph_log, "fsph_phys", scham_vacuum_log, false, 0 );
     
-    G4String FluxSDname = "FLUX";
-    G4String Fluxcollname = "FLUXHitsCollection";
-    G4SBSCalSD *FluxSD = NULL;
-    if( !( FluxSD = (G4SBSCalSD*) fDetCon->fSDman->FindSensitiveDetector(FluxSDname) ) ){
-    G4cout << "Adding FLUX SD to SDman..." << G4endl;
-    FluxSD = new G4SBSCalSD( FluxSDname, Fluxcollname );
-    fDetCon->fSDman->AddNewDetector( FluxSD );
-    (fDetCon->SDlist).insert( FluxSDname );
-    fDetCon->SDtype[FluxSDname] = kCAL;
+  G4String FluxSDname = "FLUX";
+  G4String Fluxcollname = "FLUXHitsCollection";
+  G4SBSCalSD *FluxSD = NULL;
+  if( !( FluxSD = (G4SBSCalSD*) fDetCon->fSDman->FindSensitiveDetector(FluxSDname) ) ){
+  G4cout << "Adding FLUX SD to SDman..." << G4endl;
+  FluxSD = new G4SBSCalSD( FluxSDname, Fluxcollname );
+  fDetCon->fSDman->AddNewDetector( FluxSD );
+  (fDetCon->SDlist).insert( FluxSDname );
+  fDetCon->SDtype[FluxSDname] = kCAL;
     
-    (FluxSD->detmap).depth = 0;
-    }
-    fsph_log->SetSensitiveDetector( FluxSD );
-    fsph_log->SetUserLimits(  new G4UserLimits(0.0, 0.0, 0.0, DBL_MAX, DBL_MAX) );
-    }
+  (FluxSD->detmap).depth = 0;
+  }
+  fsph_log->SetSensitiveDetector( FluxSD );
+  fsph_log->SetUserLimits(  new G4UserLimits(0.0, 0.0, 0.0, DBL_MAX, DBL_MAX) );
+  }
   */
   
   //  VISUALS
@@ -1962,10 +1963,10 @@ void G4SBSTargetBuilder::BuildTPC(G4LogicalVolume *motherlog, G4double z_pos){
  
   G4SBSmTPCSD* mTPCSD;
   if( !(mTPCSD = (G4SBSmTPCSD*) fDetCon->fSDman->FindSensitiveDetector(mTPCSDname)) ){ //Make sure SD with this name doesn't already exist
-    mTPCSD = new G4SBSmTPCSD( mTPCSDname, mTPCcolname );
-    fDetCon->fSDman->AddNewDetector(mTPCSD);
-    (fDetCon->SDlist).insert(mTPCSDname);
-    fDetCon->SDtype[mTPCSDname] = kmTPC;
+  mTPCSD = new G4SBSmTPCSD( mTPCSDname, mTPCcolname );
+  fDetCon->fSDman->AddNewDetector(mTPCSD);
+  (fDetCon->SDlist).insert(mTPCSDname);
+  fDetCon->SDtype[mTPCSDname] = kmTPC;
   }
 
   //To be thought of better, but we do not need a specific SD for HV planes and readout planes...
@@ -1976,10 +1977,10 @@ void G4SBSTargetBuilder::BuildTPC(G4LogicalVolume *motherlog, G4double z_pos){
 
   G4SBSmTPCSD *mTPCReadoutSD;
   if( !(mTPCReadoutSD = (G4SBSmTPCSD*) fDetCon->fSDman->FindSensitiveDetector(mTPCReadoutSDname)) ){ //Make sure SD with this name doesn't already exist
-    mTPCReadoutSD = new G4SBSmTPCSD( mTPCReadoutSDname, mTPCReadoutcolname );
-    fDetCon->fSDman->AddNewDetector(mTPCReadoutSD);
-    (fDetCon->SDlist).insert(mTPCReadoutSDname);
-    fDetCon->SDtype[mTPCReadoutSDname] = kmTPC;
+  mTPCReadoutSD = new G4SBSmTPCSD( mTPCReadoutSDname, mTPCReadoutcolname );
+  fDetCon->fSDman->AddNewDetector(mTPCReadoutSD);
+  (fDetCon->SDlist).insert(mTPCReadoutSDname);
+  fDetCon->SDtype[mTPCReadoutSDname] = kmTPC;
   }
   
   // set up temp sd for readoutHV discs
@@ -1988,10 +1989,10 @@ void G4SBSTargetBuilder::BuildTPC(G4LogicalVolume *motherlog, G4double z_pos){
 
   G4SBSmTPCSD *mTPCHVSD;
   if( !(mTPCHVSD = (G4SBSmTPCSD*) fDetCon->fSDman->FindSensitiveDetector(mTPCHVSDname)) ){ //Make sure SD with this name doesn't already exist
-    mTPCHVSD = new G4SBSmTPCSD( mTPCHVSDname, mTPCHVcolname );
-    fDetCon->fSDman->AddNewDetector(mTPCHVSD);
-    (fDetCon->SDlist).insert(mTPCHVSDname);
-    fDetCon->SDtype[mTPCHVSDname] = kmTPC;
+  mTPCHVSD = new G4SBSmTPCSD( mTPCHVSDname, mTPCHVcolname );
+  fDetCon->fSDman->AddNewDetector(mTPCHVSD);
+  (fDetCon->SDlist).insert(mTPCHVSDname);
+  fDetCon->SDtype[mTPCHVSDname] = kmTPC;
   }
   */
   
@@ -2285,12 +2286,12 @@ void G4SBSTargetBuilder::BuildmTPCGEMs(G4LogicalVolume *motherlog, G4double cent
       // first conducting surface of GEM
       double zpossurf1 = 0.0;
       if(incCell % 2 == 0){
-	zpossurf1 = mTPC_edgecell + fmTPC_readout_thick + fmTPC_gap_readoutGEM + fmTPC_gem_surf1thick/2.0 +
-	  incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
+      zpossurf1 = mTPC_edgecell + fmTPC_readout_thick + fmTPC_gap_readoutGEM + fmTPC_gem_surf1thick/2.0 +
+      incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
       }
       else{
-	zpossurf1 = mTPC_edgecell - fmTPC_readout_thick - fmTPC_gap_readoutGEM - fmTPC_gem_surf1thick/2.0 -
-	  incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
+      zpossurf1 = mTPC_edgecell - fmTPC_readout_thick - fmTPC_gap_readoutGEM - fmTPC_gem_surf1thick/2.0 -
+      incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
       }
       G4String mTPCGEMSurf1_solidname = "mTPCGEMSurf1_solid";
       G4String mTPCGEMSurf1_logname = "mTPCGEMSurf1_log";
@@ -2305,12 +2306,12 @@ void G4SBSTargetBuilder::BuildmTPCGEMs(G4LogicalVolume *motherlog, G4double cent
       // central dielectric material of gem
       double zposdielec = 0.0;
       if(incCell % 2 == 0){
-	zposdielec = mTPC_edgecell + fmTPC_readout_thick + fmTPC_gap_readoutGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick/2.0
-	  + incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
+      zposdielec = mTPC_edgecell + fmTPC_readout_thick + fmTPC_gap_readoutGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick/2.0
+      + incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
       }
       else{
-	zposdielec = mTPC_edgecell - fmTPC_readout_thick - fmTPC_gap_readoutGEM - fmTPC_gem_surf1thick - fmTPC_gem_dielecthick/2.0
-	  - incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
+      zposdielec = mTPC_edgecell - fmTPC_readout_thick - fmTPC_gap_readoutGEM - fmTPC_gem_surf1thick - fmTPC_gem_dielecthick/2.0
+      - incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
       }
       G4String mTPCGEMDielec_solidname = "mTPCGEMDielec_solid";
       G4String mTPCGEMDielec_logname = "mTPCGEMDielec_log";
@@ -2323,12 +2324,12 @@ void G4SBSTargetBuilder::BuildmTPCGEMs(G4LogicalVolume *motherlog, G4double cent
       // second conducting surface of GEM
       double zpossurf2 = 0.0;
       if(incCell % 2 == 0){
-	zpossurf2 = mTPC_edgecell + fmTPC_readout_thick + fmTPC_gap_readoutGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick/2.0
-	  + incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
+      zpossurf2 = mTPC_edgecell + fmTPC_readout_thick + fmTPC_gap_readoutGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick/2.0
+      + incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
       }
       else{
-	zpossurf2 = mTPC_edgecell - fmTPC_readout_thick - fmTPC_gap_readoutGEM - fmTPC_gem_surf1thick - fmTPC_gem_dielecthick - fmTPC_gem_surf2thick/2.0
-	  - incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
+      zpossurf2 = mTPC_edgecell - fmTPC_readout_thick - fmTPC_gap_readoutGEM - fmTPC_gem_surf1thick - fmTPC_gem_dielecthick - fmTPC_gem_surf2thick/2.0
+      - incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
       }
       G4String mTPCGEMSurf2_solidname = "mTPCGEMSurf2_solid";
       G4String mTPCGEMSurf2_logname = "mTPCGEMSurf2_log";
@@ -2338,7 +2339,7 @@ void G4SBSTargetBuilder::BuildmTPCGEMs(G4LogicalVolume *motherlog, G4double cent
       new G4PVPlacement(0, G4ThreeVector(0.0, 0.0, zpossurf2), mTPCGEMSurf2_log, mTPCGEMSurf2_physname, motherlog, false, counter, fChkOvLaps);
       mTPCGEMSurf2_log->SetVisAttributes( mtpc_gem_visatt );
       */
-     // gaps between gems, but not last one which is flush with end of cell
+      // gaps between gems, but not last one which is flush with end of cell
       if(incGEM != (fmTPC_Ngems-1)){
 	double zposgap = 0.0;
 	if(incCell % 2 == 0){
@@ -2347,7 +2348,7 @@ void G4SBSTargetBuilder::BuildmTPCGEMs(G4LogicalVolume *motherlog, G4double cent
 	}
 	else{
 	  zposgap =  mTPC_edgecell - fmTPC_readout_thick - fmTPC_gap_readoutGEM - fmTPC_gem_surf1thick - fmTPC_gem_dielecthick - fmTPC_gem_surf2thick - fmTPC_gap_GEMGEM/2.0
-	   - incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
+	    - incGEM*(fmTPC_gap_GEMGEM + fmTPC_gem_surf1thick + fmTPC_gem_dielecthick + fmTPC_gem_surf2thick);
 	}
 	G4String mTPCGEMGap_solidname = "mTPCGEMGap_solid";
 	G4String mTPCGEMGap_logname = "mTPCGEMGap_log";
@@ -2368,13 +2369,13 @@ void G4SBSTargetBuilder::BuildmTPCGasCells(G4LogicalVolume *motherlog, G4double 
   G4String mTPCcolname = "mTPCHitsCollection";
 
   /*
-  G4SBSGEMSD* mTPCSD;
-  if( !(mTPCSD = (G4SBSGEMSD*) fDetCon->fSDman->FindSensitiveDetector(mTPCSDname)) ){ //Make sure SD with this name doesn't already exist
+    G4SBSGEMSD* mTPCSD;
+    if( !(mTPCSD = (G4SBSGEMSD*) fDetCon->fSDman->FindSensitiveDetector(mTPCSDname)) ){ //Make sure SD with this name doesn't already exist
     mTPCSD = new G4SBSGEMSD( mTPCSDname, mTPCcolname );
     fDetCon->fSDman->AddNewDetector(mTPCSD);
     (fDetCon->SDlist).insert(mTPCSDname);
     fDetCon->SDtype[mTPCSDname] = kGEM;
-  }
+    }
   */
   G4SBSmTPCSD* mTPCSD;
   if( !(mTPCSD = (G4SBSmTPCSD*) fDetCon->fSDman->FindSensitiveDetector(mTPCSDname)) ){ //Make sure SD with this name doesn't already exist
