@@ -313,7 +313,7 @@ int main(int argc, char** argv)
 #ifdef G4UI_USE
 
     G4UIExecutive * ui = new G4UIExecutive(argc, argv,"tcsh");
-    //    G4UIExecutive * ui = new G4UIExecutive(argc,argv);
+    //G4UIExecutive * ui = new G4UIExecutive(argc,argv);//comment for term only(CA)
     UImanager->SetSession( ui->GetSession() ); 
 #endif
 

@@ -31,6 +31,8 @@ using namespace CLHEP;
 
 G4SBSEventGen::G4SBSEventGen(){
  
+  counter = 0 ; //(CA)
+
   //As default values, these don't make sense:
   fThMin = 0.01*deg;
   fThMax = 179.99*deg;
@@ -256,6 +258,10 @@ bool G4SBSEventGen::GenerateEvent(){
 
   G4cout<<"***************new event*********************************"<<G4endl;
 
+  if (counter%2000==0) G4cout<<" Event: "<< counter<< G4endl;
+  counter++;
+
+
   G4double Mp = proton_mass_c2;
   G4double Mneu = neutron_mass_c2; //there is another variable called Mn, so to avoid issues I called Mneu (CA)
 
@@ -359,6 +365,8 @@ bool G4SBSEventGen::GenerateEvent(){
   fVert = G4ThreeVector(CLHEP::RandFlat::shoot(-fRasterX/2.0, fRasterX/2.0),
 			CLHEP::RandFlat::shoot(-fRasterY/2.0, fRasterY/2.0),
 			CLHEP::RandFlat::shoot(-fTargLen/2.0, fTargLen/2.0));
+
+  G4cout << "fVert: " << fVert << G4endl;
 
   fNuclType = thisnucl;
 
@@ -1947,6 +1955,7 @@ G4LorentzVector G4SBSEventGen::GetInitialNucl( Targ_t targ, Nucl_t nucl ){
    
   switch( targ ){
   case kLD2:
+  case kD2: //to include both deuterium targets(CA) 
     PMAX = 0.35*GeV;
     break;
   case k3He:
@@ -1965,19 +1974,20 @@ G4LorentzVector G4SBSEventGen::GetInitialNucl( Targ_t targ, Nucl_t nucl ){
 
   psample = CLHEP::RandFlat::shoot(PMAX);
 
-  if( targ == k3He ){
-    while( CLHEP::RandFlat::shoot() > he3pdist( nucl, psample) ){
-      psample = CLHEP::RandFlat::shoot(PMAX);
+  if( targ == k3He )
+    {
+      while( CLHEP::RandFlat::shoot() > he3pdist( nucl, psample) ){
+	psample = CLHEP::RandFlat::shoot(PMAX);
+      }
     }
-  }
-  if( targ == kLD2 ){
-    while( CLHEP::RandFlat::shoot() > deutpdist( psample) ){
-      psample = CLHEP::RandFlat::shoot(PMAX);
+  if( targ == kLD2 || targ == kD2 ) //to include both Deuterium targets (CA)
+    {
+      while( CLHEP::RandFlat::shoot() > deutpdist( psample) ){
+	psample = CLHEP::RandFlat::shoot(PMAX);
+      }
     }
-  }
 
-
-  // I added these line to correct the mass of the nucleon
+  // I added these line to correct the mass of the nucleon (CA)
   G4double Mnucl;
 
   if (nucl == kProton)
@@ -2546,6 +2556,7 @@ ev_t G4SBSEventGen::GetEventData(){
       data.nu    = tdishandler->tGetnu()/GeV;
       data.y     = fy;
       data.Q2    = tdishandler->tGetQ2()/(GeV*GeV);
+      data.KE    = tdishandler->tGetKE()/GeV;
       data.tpi   = ftpi/(GeV*GeV);
       data.xa    = fxa;
       data.pt    = fPtTDIS/GeV;
@@ -2554,39 +2565,34 @@ ev_t G4SBSEventGen::GetEventData(){
       data.ypi   = fypi;
       data.f2p   = ff2p;
       data.f2pi  = ff2pi;
+      data.sigmaELA = tdishandler->tGetELAsigma()/barn;
+      data.sigmaQE  = tdishandler->tGetQEsigma();
       data.sigmaDIS = fSigmaDIS/cm2;
       data.sigmaTDIS = fSigmaTDIS/cm2;
       data.W2     = tdishandler->tGetW2()/(GeV*GeV);
-      
+      data.vx     = fVert.x()/m;// I understand that
+      data.vy     = fVert.y()/m;// this variables are 
+      data.vz     = fVert.z()/m;// generated in this method
       
       tElectron_f = tdishandler -> tGetelef_lab();
-      
-      data.ep     = tElectron_f.mag()/GeV;
+
+      data.ep     = tElectron_f.vect().mag()/GeV;
       data.epx    = tElectron_f.x()/GeV;
       data.epy    = tElectron_f.y()/GeV;
       data.epz    = tElectron_f.z()/GeV;
-      data.th     = tElectron_f.theta()/rad;
-      data.ph     = tElectron_f.phi()/rad;
+      data.th     = tElectron_f.theta()/deg;
+      data.ph     = tElectron_f.phi()/deg;
       
       tNucleon_f = tdishandler -> tGetnucf_lab();
-      
-      data.np     = tNucleon_f.mag()/GeV;
+
+      data.np     = tNucleon_f.vect().mag()/GeV;
       data.npx    = tNucleon_f.x()/GeV;
       data.npy    = tNucleon_f.y()/GeV;
       data.npz    = tNucleon_f.z()/GeV;
-      data.nth    = tNucleon_f.theta()/rad;
-      data.nph    = tNucleon_f.phi()/rad;
+      data.nth    = tNucleon_f.theta()/deg;
+      data.nph    = tNucleon_f.phi()/deg;
       
-   
-      
-
-      data.np  = fNeutronP.mag();
-      data.npx = fNeutronP.x();
-      data.npy = fNeutronP.y();
-      data.npz = fNeutronP.z();
-      data.nth = fNeutronP.theta()/rad;
-      data.nph = fNeutronP.phi()/rad;
-      
+        
       data.p1p  = fProton1P.mag();
       data.p1px = fProton1P.x();
       data.p1py = fProton1P.y();

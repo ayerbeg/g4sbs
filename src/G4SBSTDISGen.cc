@@ -40,11 +40,25 @@ G4SBSTDISGen::G4SBSTDISGen()
   h_bar = 6.582e-22; // reduced Planck Constant (MeV s)
   c = 299792458;     // speed of light
   m_e = 0.511;       // mass of the electron (MeV)
-  Mp = 938*MeV;      // proton mass 
+ 
 
+  // these are useless, we can get the mass of the particle
+  // with ---> ni_Nrest.m()
+  Mp =  proton_mass_c2;      // proton mass 
+  Mn = neutron_mass_c2; 
   //  iQ2 = 0;
 
   Q2 = 0;
+
+  // proposal numbers
+  tThMin = 5.0*deg;
+  tThMax = 45.0*deg;
+  tPhMin = -12.0*deg;
+  tPhMax = 12.0*deg;
+
+  tEeMin = 0.05 *GeV;
+  tEeMax = 5.0 *GeV;
+
 }
 
 G4SBSTDISGen::~G4SBSTDISGen()
@@ -65,10 +79,12 @@ void G4SBSTDISGen::Test(Kine_t KinType, Nucl_t nucl, G4LorentzVector ei, G4Loren
   if(nucl == 0)
     {
       G4cout << "nucl: "<<  nucl << " A PROTON" << G4endl;
+      Mt = Mp;
     }
   else
     {
       G4cout << "nucl: "<<  nucl << " A NEUTRON" << G4endl;
+      Mt = Mn;
     }
   G4cout << "ni: "<<  ni << G4endl;
   G4cout << "ei: "<<  ei << G4endl;
@@ -95,12 +111,9 @@ void G4SBSTDISGen::Generate(Kine_t tKineType, Nucl_t nucl, G4LorentzVector ei, G
   G4cout<<"ni: "<< ni <<G4endl; 
     
   
-  G4double  ThMin = 0.01*deg;
-  G4double  ThMax = 179.99*deg;
-  G4double  PhMin = 0.0*deg;
-  G4double  PhMax = 360.0*deg;
-  
    
+
+
   // this method receive the 4-vector beam and 4-vector nucleon
   // WHICH could be at rest (H likewise) or Fermi smeared (CHECK!)
 
@@ -125,6 +138,9 @@ void G4SBSTDISGen::Generate(Kine_t tKineType, Nucl_t nucl, G4LorentzVector ei, G
   ei_Nrest.boost( -boost_Nrest );
   ni_Nrest.boost( -boost_Nrest );
 
+  G4cout<<"ei_Nrest: "<< ei_Nrest <<G4endl; 
+  G4cout<<"ni_Nrest: "<< ni_Nrest <<G4endl; 
+
 
   // Note that, if the Nucleon is not smeared, 
   // ei_Nrest = ei; ni_Nrest = ni 
@@ -136,7 +152,8 @@ void G4SBSTDISGen::Generate(Kine_t tKineType, Nucl_t nucl, G4LorentzVector ei, G
   //electron beam energy in Lab frame
   G4double Ebeam_lab = ei.e();
 
-
+  G4cout<<"ei_Nrest.e(): "<< ei_Nrest.e() <<G4endl; 
+  //  G4cout<<"ei.m2(): "<< ei.m2() <<G4endl; 
 
   //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   //GENERATE KINEMATICS (copy from G4SBSEventGen)
@@ -144,73 +161,109 @@ void G4SBSTDISGen::Generate(Kine_t tKineType, Nucl_t nucl, G4LorentzVector ei, G
 
 
   //Generate both theta and phi angles in the LAB frame:
-  G4double th = acos( CLHEP::RandFlat::shoot(cos(ThMax), cos(ThMin)) );
-  G4double ph = CLHEP::RandFlat::shoot(PhMin, PhMax); 
+  G4double th = acos( CLHEP::RandFlat::shoot(cos(tThMax), cos(tThMin)) );
+  G4double ph = CLHEP::RandFlat::shoot(tPhMin, tPhMax); 
+  G4cout<<"th: "<<th/deg<<" ph: "<<ph/deg<< G4endl;
 
 
   //unit vector in the direction of the scattered electron in the LAB frame:
-  G4ThreeVector kfhat_lab( sin(th)*cos(ph),sin(th)*sin(ph), cos(th) );
-
+  G4ThreeVector kfhat_lab( sin(th)*cos(ph), sin(th)*sin(ph),  cos(th) );
+  G4cout<<"kfhat_lab: "<< kfhat_lab <<G4endl; 
 
   // Outgoing energy of the scattered electron in the LAB frame accounting for 
   // the initial nucleon motion (no off-shell or binding energy corrections, just Fermi momentum)
 
-  G4double Eprime_lab = (ei.e()*(ni.e()-ni.pz()))/(ei.e()*(1.-cos(th))+ni.e()-ni.vect().dot(kfhat_lab));
-  G4double Pprime_lab = sqrt(pow(Eprime_lab,2)-ei.m2());
+  if ( tKineType != tElastic && tKineType != tQuasiElastic ) // QE is a special case of Elastic
+    {
+      Eeprime_lab = CLHEP::RandFlat::shoot(tEeMin, tEeMax );
+    }
+  else
+    {
+      G4cout<< " Ela or QE energy"<< G4endl;
+      Eeprime_lab = (ei.e()*(ni.e()-ni.pz()))/(ei.e()*(1.-cos(th))+ni.e()-ni.vect().dot(kfhat_lab));
+    }
+
+  // DELETE
+  // G4ThreeVector kfhat_labMAX( sin(45*deg)*cos(ph), sin(45*deg)*sin(ph),  cos(45*deg) );
+  // G4ThreeVector kfhat_labMIN ( sin(  5*deg)*cos(ph), sin(  5*deg)*sin(ph),  cos(  5*deg) );
+  // G4double    Eeprime_lab_MAX = (ei.e()*(ni.e()-ni.pz()))/(ei.e()*(1.-cos(45*deg))+ni.e()-ni.vect().dot(kfhat_labMAX));
+  // G4double    Eeprime_lab_MIN  = (ei.e()*(ni.e()-ni.pz()))/(ei.e()*(1.-cos(  5*deg))+ni.e()-ni.vect().dot(kfhat_labMIN));
+
+  // G4cout<<"Eeprime_lab_MAX: "<< Eeprime_lab_MAX << " Eeprime_lab_MIN: "<<  Eeprime_lab_MIN<<G4endl;
+
+  Peprime_lab = sqrt(pow(Eeprime_lab, 2) - ei.m2());
+
+  //  G4cout<<"Eeprime_lab: "<< Eeprime_lab <<G4endl; 
+  // G4cout<<"Peprime_lab: "<< Peprime_lab <<G4endl; 
   
-
   // 3-momentum scatter electron in lab frame:
-  G4ThreeVector kf_lab = Pprime_lab*kfhat_lab;
+  G4ThreeVector kf_lab = Peprime_lab*kfhat_lab;
 
+  //  G4cout<<"kf_lab: "<< kf_lab <<G4endl; 
 
   //Four-momentum of scattered electron in the LAB frame:
-  G4LorentzVector ef_lab( kf_lab, Eprime_lab );
-  tElectronf_lab = ef_lab;
+  G4LorentzVector ef_lab( kf_lab, Eeprime_lab );
+  tElectronf_lab = ef_lab; //to rootfile
 
+  //  G4cout<<"ef_lab: "<< ef_lab <<G4endl; 
 
   //q vector in the LAB frame (virtual photon momentum):
   G4LorentzVector q_lab = ei - ef_lab;
+  //  G4cout<<"q_lab: "<<q_lab<<G4endl;
 
-  // G4cout<<"ef_lab: "<<ef_lab<<G4endl;
-  // G4cout<<"q_lab: "<<  q_lab<<G4endl;
-  // G4cout<<"-q_lab.m2(): "<<q_lab.m2()<<G4endl;
-   // Q2 definition
+
+  // Q2 definition
   Q2 = -q_lab.m2(); // set the variable to be used along the whole class
 
   nu =  q_lab.e(); // return Energy component
-
+  //  G4cout<<"nu: "<<nu<<G4endl;
 
   // Calculate four-momentum of scattered electron boosted to the 
   // nucleon REST frame for cross section calculation:
-
  
   G4LorentzVector ef_Nrest = ef_lab; // first define the 4-vector...
   ef_Nrest.boost( -boost_Nrest ); // then boost to the Nucleon rest frame
 
+  //  G4cout<<"ef_Nrest: "<< ef_Nrest <<G4endl; 
+
   //scattered electron energy in Nucleon Rest frame
   G4double Eprime_Nrest = ef_Nrest.e();  
+
+  //  G4cout<<"ef_Nrest.e(): "<< ef_Nrest.e() <<G4endl; 
 
   // this is the angle used to calculate Cross-sections 
   // at least Elastic and Mott (for the moment)
   G4double th_Nrest = acos( ei_Nrest.vect().unit().dot( ef_Nrest.vect().unit()) );
 
-
-  //boost back to LAB frame
   G4LorentzVector q_Nrest = ei_Nrest - ef_Nrest;
+  //  G4cout<<"q_Nrest: "<< q_Nrest <<G4endl; 
+
 
   G4LorentzVector nf_Nrest = ni_Nrest + q_Nrest;
 
+  //  G4cout<<"nf_Nrest: "<<nf_Nrest<<G4endl;  
+
+  G4double x_Nrest = -q_Nrest.m2()/(2.0*ni_Nrest.dot( q_Nrest ) );
+  
+  //boost back to LAB frame
+  
   G4LorentzVector nf_lab = nf_Nrest;
   nf_lab.boost( boost_Nrest );
+  
+  //  tNucleonf_lab = nf_lab; // to rootfile
 
-  tNucleonf_lab = nf_lab;
+  tNucleonf_lab = nf_Nrest ;// temporary, just to test. to rootfile
+  
 
+
+  // Note: we need to check the units of this correction
+  // and take care when is applicable. Like this, it is only useful in the elastic case.
   FluxC = FluxCorrection(nf_lab,  ni, ei, ei_Nrest); // calculate the flux correction for this kinematics
 
   W2 = (q_lab+ni_Nrest).m2();
 
 
-
+  G4cout<<"nf 3-mon: "<< nf_Nrest .vect().mag() <<" nf ene: "<< nf_Nrest .e()<<G4endl;
   //****** more kinematic values*****
 
   // 
@@ -221,39 +274,52 @@ void G4SBSTDISGen::Generate(Kine_t tKineType, Nucl_t nucl, G4LorentzVector ei, G
   //********************************
 
 
-  //These values are set fixed now for Deuterium target
+  //These values are set fixed now for Deuterium target with the epc code
   // later on, the target used should be carried here
 
-  G4int z1 = 1; //atomic number
-  G4int n1 = 2; //number of nucleons
+  G4int z1 = 1; //atomic number (number of protons)
+  G4int n1 = 1; //THIS IS NUMBER OF NEUTRONS!!! 
   G4int partID = (Nucl_t) nucl; 
 
-  G4cout<<"partID: "<< partID<<G4endl; //but neutron out... 
-
-
- 
-
   G4cout<<"kine: "<<tKineType<<G4endl; 
+
+
+  // In principle, each kinematic case just need to carry the 
+  // values calculated until here. Then each case will be 
+  // treated differently, maybe just one line, maybe a whole 
+  // method (as the pion structure generator will need)
+
   switch(tKineType){
   case tElastic:
     xbj = 1.0;
-    sigma = ElasticXS(Ebeam_Nrest, Eprime_Nrest, th_Nrest, nucl);
-    G4cout<<"enter in TDIS elastic: "<<sigma/barn<<G4endl;
+    ELAsigma = ElasticXS(Ebeam_Nrest, Eprime_Nrest, th_Nrest, nucl);
+    G4cout<<"enter in TDIS elastic: "<<ELAsigma/barn<<G4endl;
     break;
-
 
   case tQuasiElastic:
     //always in Nucleon Rest Frame
-    sigma = QuasiElasticXS(Ebeam_Nrest, z1, n1, partID, nf_Nrest.vect().mag(), th_Nrest);
-    G4cout<<"enter in TDIS quasielastic: "<<sigma<<G4endl;
+    thN_Nrest = nf_Nrest.theta() ; //nucleon theta angle in N rest frame
+    xbj = Q2 / (2.0*nu*ni_Nrest.m() ); //x Bjorken, CHECK!!! it is in Lab frame. 
+
+    //    G4cout<<"standard xbj: "<< Q2/(2.*(ni_Nrest.dot(q_Nrest) ))<<G4endl;
+
+    QEsigma = QuasiElasticXS(Ebeam_Nrest, z1, n1, partID, nf_Nrest .vect().mag(), thN_Nrest);
+
+    G4cout<<"[TDIS] quasielastic sigma (uB/(MeV sr): "<<QEsigma<<G4endl;
+
+
+    // This is from definition BUT it is NOT clear for me. Nevertheless, it coincides with the epc code
+    // value 'tp' which I believe is the kinetic energy  (CA)
+    G4cout<<" KE from definition:  "<< sqrt( pow(nf_Nrest.vect().mag(),2) + ni_Nrest.m2()) - ni_Nrest.m()<<G4endl; 
+
+    KE =  sqrt( pow(nf_Nrest.vect().mag(),2) + ni_Nrest.m2()) - ni_Nrest.m();
+
     break;
 
   case tInelastic:
     //Calculate the boosted value of Bjorken x:
     xbj = -q_Nrest.m2()/(2.0*ni_Nrest.dot( q_Nrest ) );//not sure
     break;
-
-
 
   default:
     break;
@@ -278,17 +344,15 @@ void G4SBSTDISGen::Generate(Kine_t tKineType, Nucl_t nucl, G4LorentzVector ei, G
 
 G4double G4SBSTDISGen::FluxCorrection( G4LorentzVector nf_lab, G4LorentzVector ni, G4LorentzVector ei, G4LorentzVector ei_Nrest)
 {
-  G4double beta = nf_lab.vect().mag()/nf_lab.e(); //beta = p/e
-  
-  G4double costheta_eN_lab = (ei.vect().unit() ).dot( ni.vect().unit() );
-  G4double betaN_lab = ni.beta();
-  G4double gammaN_lab = ni.gamma();
-  G4double flux_Nrest = 4.0*ni.m()*ei_Nrest.e();
-  G4double flux_lab = 4.0*ei.e()*ni.e()*sqrt( 2.0*(1.0-betaN_lab*costheta_eN_lab) - pow(gammaN_lab,-2) );
 
+  G4double beta            = nf_lab.vect().mag()/nf_lab.e(); //beta = p/e
+  G4double costheta_eN_lab = (ei.vect().unit() ).dot( ni.vect().unit() );
+  G4double betaN_lab       = ni.beta();
+  G4double gammaN_lab      = ni.gamma();
+  G4double flux_Nrest      = 4.0*ni.m()*ei_Nrest.e();
+  G4double flux_lab        = 4.0*ei.e()*ni.e()*sqrt( 2.0*(1.0-betaN_lab*costheta_eN_lab) - pow(gammaN_lab,-2) );
 
 //The lines above already converted the cross section to GEANT4 units. Now this has dimensions of area, is expressed in the lab frame, and is differential in solid angle only! (note from EventGen)
-
 
   return flux_Nrest/flux_lab;
 }
@@ -309,17 +373,16 @@ G4double G4SBSTDISGen::ElasticXS(G4double beam_energy, G4double scatter_e_energy
   //Mott x Recoil fraction x form factors relation
 
   G4double eSigma = MottXS(theta, E)* (E_prime/E)*
-    ( (pow(GE(nu),2)+tau()*pow(GM(nu),2)/(1.0+tau()) + 2.0*tau()*pow(GM(nu),2)*pow(tan(theta/2.0),2) )); // Dimensions of area
+    ( (pow(GE(nu),2)+tau()*pow(GM(nu),2)/(1.0+tau()) + 2.0*tau()*pow(GM(nu),2)*pow(tan(theta/2.0),2) )); 
+  // Dimensions of area 
   
   return eSigma*FluxC;
-
 }
 
 
 
 G4double G4SBSTDISGen::PhotoD_XS(G4double E_photon)
 {
-
   // E_photon; // virtual photon energy in MeV
 
   // Bethe-Peirls Deuterium photodesintegration cross-section
@@ -355,20 +418,16 @@ G4double G4SBSTDISGen::PhotoD_XS(G4double E_photon)
   // knowing the maximum. 2.4mb@4.4MeV. In other words /sigma = K * f(E)
   // where f(E) is the factor energy dependent.
   // thus K = 2.4 mb / 0.056195 MeV^-1
-    
-
 }
 
 
 G4double G4SBSTDISGen::VXPhoton_flux(double E_photon, double E_beam)
 {
-  
   // virtual photon flux, check with Raffo's CLAS12 J/psi photoproduction proposal
 
   G4double Q2max = 0.3; // (MeV/c)^2 Cut-off value. The formula is not so sensitive 
   // to this value. It was tested with 0.3, 3, 30 and 300 (MeV/c)²
   // and the change in flux is neglegible
-  
   
   G4double x = E_photon / E_beam;
 
@@ -381,9 +440,7 @@ G4double G4SBSTDISGen::VXPhoton_flux(double E_photon, double E_beam)
   G4double term3 = alpha() /(E_beam*x*TMath::Pi());
   
   return term3 * ( term1 * term2 - (1-x)) ;
-  
 }
-
 
 
 
@@ -417,13 +474,9 @@ G4double G4SBSTDISGen::QuasiElasticXS(G4double beam_energy, G4int z1, G4int n1, 
       partID = -1; // neutron
     }
 
-
-
   return  epc_func_(&beam_energy, &z1, &n1, &partID, &momentum, &angle);
 
 }
-
-
 
 
 G4double  G4SBSTDISGen::MottXS(G4double theta, G4double beam_energy)
@@ -445,6 +498,7 @@ G4double  G4SBSTDISGen::MottXS(G4double theta, G4double beam_energy)
   // For example, the final result here will be in mm^2, if we want barns
   // just MXS/barn and the final number is in such unit.
 }
+
 
 G4double G4SBSTDISGen::DipoleFF()
 {

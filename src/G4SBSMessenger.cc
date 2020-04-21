@@ -1357,21 +1357,25 @@ void G4SBSMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
   if( cmd == thminCmd ){
     G4double v = thminCmd->GetNewDoubleValue(newValue);
     fevgen->SetThMin(v);
+    tdishandler -> tSetThMin(v);//(CA)
     fevgen->SetInitialized(false);
   }
   if( cmd == thmaxCmd ){
     G4double v = thmaxCmd->GetNewDoubleValue(newValue);
     fevgen->SetThMax(v);
+    tdishandler -> tSetThMax(v);//(CA)
     fevgen->SetInitialized(false);
   }
   if( cmd == phminCmd ){
     G4double v = phminCmd->GetNewDoubleValue(newValue);
     fevgen->SetPhMin(v);
+    tdishandler -> tSetPhMin(v);//(CA)
     fevgen->SetInitialized(false);
   }
   if( cmd == phmaxCmd ){
     G4double v = phmaxCmd->GetNewDoubleValue(newValue);
     fevgen->SetPhMax(v);
+    tdishandler -> tSetPhMax(v);//(CA)
     fevgen->SetInitialized(false);
   }
   if( cmd == HthminCmd ){

@@ -25,8 +25,8 @@ public:
 
   G4SBSIO *fIO;
  
-   void Test(Kine_t, Nucl_t, G4LorentzVector, G4LorentzVector);
-
+  void Test(Kine_t, Nucl_t, G4LorentzVector, G4LorentzVector);
+  
   void Generate(Kine_t, Nucl_t, G4LorentzVector , G4LorentzVector);
 
   G4double PhotoD_XS(G4double E_photon); //PhotoDisintegration Cross Section
@@ -67,12 +67,25 @@ public:
   G4double tGetW2(){ return W2; }
   G4double tGetxbj(){ return xbj; }
 
+  G4double tGetKE(){ return KE; }
+
+
+
+  G4double tGetQEsigma(){ return QEsigma; }
+  G4double tGetELAsigma(){ return ELAsigma; }
+
   G4LorentzVector tGetelef_lab(){ return tElectronf_lab; }
   G4LorentzVector tGetnucf_lab(){ return tNucleonf_lab; }
 
 
-
-
+  void tSetThMin(double v){tThMin = v;}
+  void tSetThMax(double v){tThMax = v;}
+  
+  void tSetPhMin(double v){tPhMin = v;}
+  void tSetPhMax(double v){tPhMax = v;}
+  
+  void tSetEeMin(double v){tEeMin = v;}
+  void tSetEeMax(double v){tEeMax = v;}
 
 private:
 
@@ -88,12 +101,18 @@ private:
   G4double m_e;      // mass of the electron
   //maybe we need to deleta most of these definitions
 
+  G4double Mp, Mn,  Mt; // proton, neutron (target p/n)
 
-  G4double Mp;
+  G4double Eeprime_lab, Peprime_lab; 
 
+  G4double KE;
 
+  G4double tThMin, tThMax, tPhMin, tPhMax; //Angular generation limits for electron arm
+  G4double tEeMin, tEeMax; //Electron energy generation limits
 
-  G4double iGE; // internal calculus GE
+  G4double thN_Nrest;
+
+  G4double iGE; // internal calculus G
   G4double iGM; // internal calculus GM
 
   G4double Q2; // momentum transfer
@@ -107,7 +126,7 @@ private:
   G4double W2, xbj;
   G4ThreeVector tElectronP, tNucleonP;
   G4double tElectronE, tNucleonE;
-  G4double  sigma;
+  G4double  QEsigma, ELAsigma;
   G4double nu;
   G4LorentzVector tElectronf_lab, tNucleonf_lab;
 

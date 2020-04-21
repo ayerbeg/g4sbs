@@ -253,6 +253,9 @@ private:
   G4int fExclPyXSoption; //Flag to choose "Exclusive pythia" event-by-event cross section events
 
 
+  G4int counter;//(CA)
+
+
   // TDIS AcquMC
   long fAcquMCchainentry;
   TChain *fAcquMCChain;
